@@ -1,0 +1,205 @@
+  
+/// ALL NAMES WITH SNC "TEST" MUST BE CHANGED TO SUIT YOUR SNC
+/// Line 36, name chosen must be unique
+/// Line 12, name chosen must be unique
+/// If a name is defined and called later in the file IT MUST match and is case sensitive. 
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "functions": [],
+    "variables": {},
+    "resources": [{
+        "name": "[toLower('sto78660')]", //CHANGE
+        "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2019-06-01",
+        "location": "[resourceGroup().location]",
+        "tags": {
+            "displayName": "TESTSTORAGE" //CHANGE
+        },
+        "sku": {
+            "name": "Standard_LRS"
+        },
+        "kind": "Storage"
+    },
+    // Public IP name must be UNIQUE NAME for DNS
+    {
+        "name": "WebappIP23", //CHANGE
+        "type": "Microsoft.Network/publicIPAddresses",
+        "apiVersion": "2019-11-01",
+        "location": "[resourceGroup().location]",
+        "tags": {
+            "displayName": "WEBAPP-PUBLICIP" //CHANGE
+        },
+        "properties": {
+            "publicIPAllocationMethod": "Dynamic",
+            "dnsSettings": {
+                "domainNameLabel": "[toLower('TestVM4-domain-name-BoHayes')]" //CHANGE Must be UNIQUE
+            }
+        }
+    },
+    /// NSG RULES
+    {
+        "name": "TestNSG4", //CHANGE
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "apiVersion": "2018-08-01",
+        "location": "[resourceGroup().location]",
+        "properties": {
+            "securityRules": [
+                {
+                    "name": "nsgRule2", 
+                    "properties": {
+                        "description": "Allow ports 22,80,3389",
+                        "protocol": "Tcp",
+                        "sourcePortRange": "*",
+                        "destinationPortRange": "22-3389",
+                        "sourceAddressPrefix": "*",
+                        "destinationAddressPrefix": "*",
+                        "access": "Allow",
+                        "priority": 101,
+                        "direction": "Inbound"
+                    }
+                }
+            ]
+        }
+    },
+    ///Virtual Network Setup
+    {
+        "name": "TestVNet4", //CHANGE
+        "type": "Microsoft.Network/virtualNetworks",
+        "apiVersion": "2019-11-01",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+            "[resourceId('Microsoft.Network/networkSecurityGroups', 'TestNSG4')]"//CHANGE
+        ],
+        "tags": {
+            "displayName": "TESTVNET4"//CHANGE
+        },
+        "properties": {
+            "addressSpace": {
+                "addressPrefixes": [
+                    "10.1.0.0/16"//CHANGE
+                    // To keep same subnet, change one of the 0's but do not touch /16
+                ]
+            },
+            "subnets": [
+                {
+                    "name": "frontend",
+                    "properties": {
+                        "addressPrefix": "10.2.0.0/16",//CHANGE
+                        // To keep same subnet, change the same 0's as above but do not touch /24
+                        "networkSecurityGroup": {
+                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'TestNSG4')]"//CHANGE
+                        }
+                    }
+                },
+                {
+                    "name": "backend",
+                    "properties": {
+                        "addressPrefix": "10.3.0.0/16",//CHANGE
+                        // To keep same subnet, change the same 0's as above but do not touch /24
+                        "networkSecurityGroup": {
+                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'TestNSG4')]"//CHANGE
+                        }
+                    }
+                },
+                {
+                    "name": "Firewall",
+                    "properties": {
+                        "addressPrefix": "10.4.0.0/24",//CHANGE
+                        // To keep same subnet, change the same 0's as above but do not touch /24
+                        "networkSecurityGroup": {
+                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'TestNSG4')]"//CHANGE
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "name": "TestNIC4",//CHANGE
+        "type": "Microsoft.Network/networkInterfaces",
+        "apiVersion": "2019-11-01",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+            "[resourceId('Microsoft.Network/publicIPAddresses', 'TestPublicIP4')]",//CHANGE
+            "[resourceId('Microsoft.Network/virtualNetworks', 'TestVNet4')]"//CHANGE
+        ],
+        "tags": {
+            "displayName": "TESTNIC4"//CHANGE
+        },
+        "properties": {
+            "ipConfigurations": [
+                {
+                    "name": "ipConfig2",
+                    "properties": {
+                        "privateIPAllocationMethod": "Dynamic",
+                        "publicIPAddress": {
+                            "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'TestPublicIP4')]"//CHANGE
+                        },
+                        "subnet": {
+                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'TestVNet4', 'frontend')]"//CHANGE //CHANGE
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "name": "Webapp-1-test",//CHANGE
+        "type": "Microsoft.Compute/virtualMachines",
+        "apiVersion": "2019-07-01",
+        "location": "[resourceGroup().location]",
+        // Storage name must be well defined
+        "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', toLower('sto78660'))]",//CHANGE
+            "[resourceId('Microsoft.Network/networkInterfaces', 'TestNIC4')]"//CHANGE
+        ],
+        "tags": {
+            "displayName": "Webapp1"//CHANGE
+        },
+        "properties": {
+            "hardwareProfile": {
+                "vmSize": "Standard_A2_v2"
+            },
+
+            // Computer name cannot have special characters
+            "osProfile": {
+                "computerName": "Wordpress", //CHANGE
+                "adminUsername": "azureuser", //CHANGE
+                "adminPassword": "1q2w3e4r!Q@W#E$R" //CHANGE
+            },
+
+            // Get the list of all available images by running the following command: az vm image list -f <OS NAME> --all --output table
+            "storageProfile": {
+                "imageReference": {
+                    "offer": "SUSE",
+                    "publisher": "SLES-SAP",
+                    "sku": "12-sp4",
+                    "version": "latest"
+                },
+                "osDisk": {
+                    "name": "Webapp-domain-name-OSDisk", //CHANGE
+                    "caching": "ReadWrite",
+                    "createOption": "FromImage"
+                }
+            },
+            "networkProfile": {
+                "networkInterfaces": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/networkInterfaces', 'TestNIC4')]"  //CHANGE
+                    }
+                ]
+            },
+
+            // Storage name must be unique
+            "diagnosticsProfile": {
+                "bootDiagnostics": {
+                    "enabled": true,
+                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('sto78660'))).primaryEndpoints.blob]"  //CHANGE
+                }
+            }
+        }
+    }],
+    "outputs": {}
+}
