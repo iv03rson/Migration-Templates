@@ -1,4 +1,3 @@
-
 /// ALL NAMES WITH SNC "TEST" MUST BE CHANGED TO SUIT YOUR SNC
 /// Line 36, name chosen must be unique
 /// Line 12, name chosen must be unique
@@ -10,12 +9,12 @@
     "functions": [],
     "variables": {},
     "resources": [{
-        "name": "[toLower('sto78660')]", //CHANGE
+        "name": "[toLower('TestStorageBoHayes4')]", //CHANGE
         "type": "Microsoft.Storage/storageAccounts",
         "apiVersion": "2019-06-01",
         "location": "[resourceGroup().location]",
         "tags": {
-            "displayName": "TESTSTORAGE" //CHANGE
+            "displayName": "TESTSTORAGE4" //CHANGE
         },
         "sku": {
             "name": "Standard_LRS"
@@ -24,23 +23,23 @@
     },
     // Public IP name must be UNIQUE NAME for DNS
     {
-        "name": "WebappIP23", //CHANGE
+        "name": "TestPublicIP4", //CHANGE
         "type": "Microsoft.Network/publicIPAddresses",
         "apiVersion": "2019-11-01",
         "location": "[resourceGroup().location]",
         "tags": {
-            "displayName": "WEBAPP-PUBLICIP" //CHANGE
+            "displayName": "TESTPUBLICIP4" //CHANGE
         },
         "properties": {
             "publicIPAllocationMethod": "Dynamic",
             "dnsSettings": {
-                "domainNameLabel": "[toLower('Webapp-dez-lab')]" //CHANGE Must be UNIQUE
+                "domainNameLabel": "[toLower('TestVM4-domain-name-BoHayes')]" //CHANGE Must be UNIQUE
             }
         }
     },
     /// NSG RULES
     {
-        "name": "TestNSG1", //CHANGE
+        "name": "TestNSG4", //CHANGE
         "type": "Microsoft.Network/networkSecurityGroups",
         "apiVersion": "2018-08-01",
         "location": "[resourceGroup().location]",
@@ -78,33 +77,13 @@
         "properties": {
             "addressSpace": {
                 "addressPrefixes": [
-                    "10.1.0.0/16"//CHANGE
+                    "10.4.0.0/16"//CHANGE
                     // To keep same subnet, change one of the 0's but do not touch /16
                 ]
             },
             "subnets": [
                 {
-                    "name": "frontend",
-                    "properties": {
-                        "addressPrefix": "10.2.0.0/16",//CHANGE
-                        // To keep same subnet, change the same 0's as above but do not touch /24
-                        "networkSecurityGroup": {
-                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'TestNSG4')]"//CHANGE
-                        }
-                    }
-                },
-                {
-                    "name": "backend",
-                    "properties": {
-                        "addressPrefix": "10.3.0.0/16",//CHANGE
-                        // To keep same subnet, change the same 0's as above but do not touch /24
-                        "networkSecurityGroup": {
-                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'TestNSG4')]"//CHANGE
-                        }
-                    }
-                },
-                {
-                    "name": "Firewall",
+                    "name": "TestSubnet4",
                     "properties": {
                         "addressPrefix": "10.4.0.0/24",//CHANGE
                         // To keep same subnet, change the same 0's as above but do not touch /24
@@ -122,7 +101,7 @@
         "apiVersion": "2019-11-01",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-            "[resourceId('Microsoft.Network/publicIPAddresses', 'webappIP23')]",//CHANGE
+            "[resourceId('Microsoft.Network/publicIPAddresses', 'TestPublicIP4')]",//CHANGE
             "[resourceId('Microsoft.Network/virtualNetworks', 'TestVNet4')]"//CHANGE
         ],
         "tags": {
@@ -135,10 +114,10 @@
                     "properties": {
                         "privateIPAllocationMethod": "Dynamic",
                         "publicIPAddress": {
-                            "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'WebappIP23')]"//CHANGE
+                            "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'TestPublicIP4')]"//CHANGE
                         },
                         "subnet": {
-                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'TestVNet4', 'frontend')]"//CHANGE //CHANGE
+                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'TestVNet4', 'TestSubnet4')]"//CHANGE //CHANGE
                         }
                     }
                 }
@@ -146,17 +125,17 @@
         }
     },
     {
-        "name": "Webapp-1-test",//CHANGE
+        "name": "TestVM4BoHayes",//CHANGE
         "type": "Microsoft.Compute/virtualMachines",
         "apiVersion": "2019-07-01",
         "location": "[resourceGroup().location]",
         // Storage name must be well defined
         "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', toLower('sto78660'))]",//CHANGE
+            "[resourceId('Microsoft.Storage/storageAccounts', toLower('TestStorageBoHayes4'))]",//CHANGE
             "[resourceId('Microsoft.Network/networkInterfaces', 'TestNIC4')]"//CHANGE
         ],
         "tags": {
-            "displayName": "Webapp1"//CHANGE
+            "displayName": "TESTVM3BOHAYES"//CHANGE
         },
         "properties": {
             "hardwareProfile": {
@@ -165,9 +144,9 @@
 
             // Computer name cannot have special characters
             "osProfile": {
-                "computerName": "Wordpress", //CHANGE
-                "adminUsername": "azureuser", //CHANGE
-                "adminPassword": "1q2w3e4r!Q@W#E$R" //CHANGE
+                "computerName": "TestVM4BoHayes", //CHANGE
+                "adminUsername": "bohayes", //CHANGE
+                "adminPassword": "P@55w.rdP@55w.rd" //CHANGE
             },
 
             // Get the list of all available images by running the following command: az vm image list -f <OS NAME> --all --output table
@@ -179,7 +158,7 @@
                     "version": "latest"
                 },
                 "osDisk": {
-                    "name": "Webapp-domain-name-OSDisk", //CHANGE
+                    "name": "TestVM4-domain-name-BoHayesOSDisk", //CHANGE
                     "caching": "ReadWrite",
                     "createOption": "FromImage"
                 }
@@ -196,7 +175,7 @@
             "diagnosticsProfile": {
                 "bootDiagnostics": {
                     "enabled": true,
-                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('sto78660'))).primaryEndpoints.blob]"  //CHANGE
+                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('TestStorageBoHayes4'))).primaryEndpoints.blob]"  //CHANGE
                 }
             }
         }
