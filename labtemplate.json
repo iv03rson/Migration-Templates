@@ -1,4 +1,4 @@
-  
+
 /// ALL NAMES WITH SNC "TEST" MUST BE CHANGED TO SUIT YOUR SNC
 /// Line 36, name chosen must be unique
 /// Line 12, name chosen must be unique
@@ -34,13 +34,13 @@
         "properties": {
             "publicIPAllocationMethod": "Dynamic",
             "dnsSettings": {
-                "domainNameLabel": "[toLower('TestVM4-domain-name-BoHayes')]" //CHANGE Must be UNIQUE
+                "domainNameLabel": "[toLower('Webapp-dez-lab')]" //CHANGE Must be UNIQUE
             }
         }
     },
     /// NSG RULES
     {
-        "name": "TestNSG4", //CHANGE
+        "name": "TestNSG1", //CHANGE
         "type": "Microsoft.Network/networkSecurityGroups",
         "apiVersion": "2018-08-01",
         "location": "[resourceGroup().location]",
@@ -122,7 +122,7 @@
         "apiVersion": "2019-11-01",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-            "[resourceId('Microsoft.Network/publicIPAddresses', 'TestPublicIP4')]",//CHANGE
+            "[resourceId('Microsoft.Network/publicIPAddresses', 'webappIP23')]",//CHANGE
             "[resourceId('Microsoft.Network/virtualNetworks', 'TestVNet4')]"//CHANGE
         ],
         "tags": {
@@ -135,7 +135,7 @@
                     "properties": {
                         "privateIPAllocationMethod": "Dynamic",
                         "publicIPAddress": {
-                            "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'TestPublicIP4')]"//CHANGE
+                            "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'WebappIP23')]"//CHANGE
                         },
                         "subnet": {
                             "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'TestVNet4', 'frontend')]"//CHANGE //CHANGE
